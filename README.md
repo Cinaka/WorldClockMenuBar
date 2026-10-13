@@ -18,7 +18,7 @@
 - Swift 编译器 `swiftc`
 - Xcode Command Line Tools
 
-已测试环境：macOS 27.0.1。
+已测试环境：macOS 27.0.1、15.7.3。
 
 ## 项目结构
 
