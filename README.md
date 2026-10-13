@@ -59,7 +59,7 @@ swiftc --version
 如果使用 Git 克隆仓库：
 
 ```bash
-git clone https://github.com/你的用户名/WorldClockMenuBar.git
+git clone https://github.com/Cinaka/WorldClockMenuBar.git
 cd WorldClockMenuBar
 ```
 
