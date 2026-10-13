@@ -56,14 +56,10 @@ swiftc --version
 
 ### 2. 下载项目
 
-如果使用 Git 克隆仓库：
 
 ```bash
 git clone https://github.com/Cinaka/WorldClockMenuBar.git
-cd WorldClockMenuBar
 ```
-
-请将仓库地址替换为实际的 GitHub 地址。
 
 ### 3. 编译应用
 
@@ -114,7 +110,6 @@ open dist/WorldClockMenuBar.app
 | `build.sh` | 编译脚本 |
 | `run.sh` | 启动脚本 |
 
-`.build/` 和 `dist/` 属于生成目录，通常无需提交到 GitHub。其他用户克隆源码后，可以自行编译生成应用。
 
 ## 诊断日志
 
