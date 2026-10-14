@@ -74,6 +74,45 @@ struct SettingsView: View {
                         )
                     }
 
+                    Divider()
+
+                    Text("Additional menu bar information")
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+
+                    Toggle(
+                        "Show date in menu bar",
+                        isOn: $store.showDateInMenuBar
+                    )
+                    .onChange(of: store.showDateInMenuBar) { value in
+                        store.save()
+                        DiagnosticLog.write(
+                            "Show date in menu bar changed to \(value)."
+                        )
+                    }
+
+                    Toggle(
+                        "Show weekday in menu bar",
+                        isOn: $store.showWeekdayInMenuBar
+                    )
+                    .onChange(of: store.showWeekdayInMenuBar) { value in
+                        store.save()
+                        DiagnosticLog.write(
+                            "Show weekday in menu bar changed to \(value)."
+                        )
+                    }
+
+                    Toggle(
+                        "Show seconds in menu bar",
+                        isOn: $store.showSecondsInMenuBar
+                    )
+                    .onChange(of: store.showSecondsInMenuBar) { value in
+                        store.save()
+                        DiagnosticLog.write(
+                            "Show seconds in menu bar changed to \(value)."
+                        )
+                    }
+
                     HStack {
                         Text("Menu bar icon")
                         Spacer()

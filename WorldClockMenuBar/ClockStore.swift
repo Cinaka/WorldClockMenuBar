@@ -31,6 +31,11 @@ final class ClockStore: ObservableObject {
     @Published var showClockIcon = true
     @Published var menuBarIconName = "clock"
 
+    // 新增：菜单栏日期、星期、秒数显示选项
+    @Published var showDateInMenuBar = false
+    @Published var showWeekdayInMenuBar = false
+    @Published var showSecondsInMenuBar = false
+
     static let availableIcons = [
         "clock",
         "clock.fill",
@@ -54,6 +59,7 @@ final class ClockStore: ObservableObject {
             "ClockStore initialized. City count: \(cities.count), selected: \(selectedCityID)"
         )
 
+        // 每秒触发更新，保证开启秒数后菜单栏实时刷新
         timer = Timer.scheduledTimer(
             withTimeInterval: 1,
             repeats: true
@@ -74,23 +80,73 @@ final class ClockStore: ObservableObject {
             ?? ClockCity.defaults[0]
     }
 
+    // 生成菜单栏显示文本
+    // 示例：New York Tue Oct 13 09:05:35
     var menuBarTitle: String {
-        let time = timeString(for: selectedCity)
+        var components: [String] = []
 
         if showCityName {
-            return "\(selectedCity.name) \(time)"
+            components.append(selectedCity.name)
         }
 
-        return time
+        let now = Date()
+
+        // 星期，例如 Tue
+        if showWeekdayInMenuBar {
+            components.append(
+                formattedDate(
+                    now,
+                    for: selectedCity,
+                    format: "EEE"
+                )
+            )
+        }
+
+        // 日期，例如 Oct 13
+        if showDateInMenuBar {
+            components.append(
+                formattedDate(
+                    now,
+                    for: selectedCity,
+                    format: "MMM d"
+                )
+            )
+        }
+
+        // 时间始终显示；秒数由设置决定
+        components.append(timeString(for: selectedCity))
+
+        return components.joined(separator: " ")
     }
 
     func timeString(for city: ClockCity) -> String {
         let formatter = DateFormatter()
         formatter.locale = Locale(identifier: "en_US_POSIX")
         formatter.timeZone = city.timeZone
-        formatter.dateFormat = use24Hour ? "HH:mm" : "h:mm a"
+
+        if use24Hour {
+            formatter.dateFormat = showSecondsInMenuBar
+                ? "HH:mm:ss"
+                : "HH:mm"
+        } else {
+            formatter.dateFormat = showSecondsInMenuBar
+                ? "h:mm:ss a"
+                : "h:mm a"
+        }
 
         return formatter.string(from: Date())
+    }
+
+    private func formattedDate(
+        _ date: Date,
+        for city: ClockCity,
+        format: String
+    ) -> String {
+        let formatter = DateFormatter()
+        formatter.locale = Locale(identifier: "en_US_POSIX")
+        formatter.timeZone = city.timeZone
+        formatter.dateFormat = format
+        return formatter.string(from: date)
     }
 
     func dateAndOffset(for city: ClockCity) -> String {
@@ -279,6 +335,19 @@ final class ClockStore: ObservableObject {
             forKey: "showClockIcon"
         ) as? Bool ?? true
 
+        // 新选项默认关闭，升级后保持原有菜单栏外观
+        showDateInMenuBar = defaults.object(
+            forKey: "showDateInMenuBar"
+        ) as? Bool ?? false
+
+        showWeekdayInMenuBar = defaults.object(
+            forKey: "showWeekdayInMenuBar"
+        ) as? Bool ?? false
+
+        showSecondsInMenuBar = defaults.object(
+            forKey: "showSecondsInMenuBar"
+        ) as? Bool ?? false
+
         let savedIcon = defaults.string(
             forKey: "menuBarIconName"
         ) ?? "clock"
@@ -288,7 +357,16 @@ final class ClockStore: ObservableObject {
             : "clock"
 
         DiagnosticLog.write(
-            "Settings loaded. 24-hour: \(use24Hour), city name: \(showCityName), icon: \(showClockIcon), icon name: \(menuBarIconName)"
+            """
+            Settings loaded. \
+            24-hour: \(use24Hour), \
+            city name: \(showCityName), \
+            icon: \(showClockIcon), \
+            icon name: \(menuBarIconName), \
+            date: \(showDateInMenuBar), \
+            weekday: \(showWeekdayInMenuBar), \
+            seconds: \(showSecondsInMenuBar)
+            """
         )
     }
 
@@ -302,6 +380,12 @@ final class ClockStore: ObservableObject {
         defaults.set(showCityName, forKey: "showCityName")
         defaults.set(showClockIcon, forKey: "showClockIcon")
         defaults.set(menuBarIconName, forKey: "menuBarIconName")
+
+        // 保存新增的三个选项
+        defaults.set(showDateInMenuBar, forKey: "showDateInMenuBar")
+        defaults.set(showWeekdayInMenuBar, forKey: "showWeekdayInMenuBar")
+        defaults.set(showSecondsInMenuBar, forKey: "showSecondsInMenuBar")
+
         defaults.set(true, forKey: "didMigrateTo24HourDefault")
     }
 }
